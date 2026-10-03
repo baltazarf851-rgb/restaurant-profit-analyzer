@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://baltazarf851-rgb.github.io/restaurant-profit-analyzer/sitemap.xml

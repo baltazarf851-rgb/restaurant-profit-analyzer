@@ -8,6 +8,9 @@
   <meta property="og:title" content="Restaurant Profit Analyzer | Menu Engineering Tool">
   <meta property="og:description" content="Estimate revenue, product cost, gross profit and margin for each menu item, and see how your menu performs with menu engineering. Runs in your browser.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://baltazarf851-rgb.github.io/restaurant-profit-analyzer/">
+  <meta property="og:site_name" content="Restaurant Profit Analyzer">
+  <link rel="canonical" href="https://baltazarf851-rgb.github.io/restaurant-profit-analyzer/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -15,15 +18,40 @@
   <header class="site-header">
     <div class="container">
       <h1>Restaurant Profit Analyzer</h1>
-      <p class="subtitle">
-        Estimate revenue, product cost, gross profit and margin for every item on your menu,
-        and see which items perform best with menu engineering.
-      </p>
+      <p class="subtitle">Menu profitability and menu engineering for restaurants and cafés.</p>
       <p class="header-meta">Free to use · Runs in your browser · No sign-up</p>
     </div>
   </header>
 
   <main class="container">
+    <!-- Introduction: what the tool does -->
+    <section class="panel intro" aria-labelledby="intro-title">
+      <h2 class="panel-title" id="intro-title">What this tool does</h2>
+      <div class="intro-grid">
+        <div>
+          <p>
+            Restaurant Profit Analyzer is a free tool for restaurant and café owners and managers.
+            Enter the selling price, unit cost and units sold of each menu item to see:
+          </p>
+          <ul class="intro-list">
+            <li>Revenue for each item and for the whole menu</li>
+            <li>Food and product cost, based on your unit costs</li>
+            <li>Gross profit and gross margin</li>
+            <li>A menu engineering classification: Star, Plowhorse, Puzzle or Dog</li>
+          </ul>
+        </div>
+        <div class="intro-aside">
+          <h3 class="intro-aside-title">Your data stays in your browser</h3>
+          <p>
+            Products are currently saved in this browser's local storage. There is no account and
+            nothing is uploaded. Use Export CSV to keep a backup.
+          </p>
+          <h3 class="intro-aside-title">Getting started</h3>
+          <p>The four demo products show how it works. Edit them, add your own or import a CSV file.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Dashboard: global metrics -->
     <section class="dashboard-section" aria-label="Summary metrics">
       <div class="dashboard">
@@ -223,6 +251,28 @@
         </div>
       </div>
     </section>
+
+    <!-- Free features and a possible future Pro version (nothing implemented yet) -->
+    <section class="panel" aria-labelledby="free-title">
+      <h2 class="panel-title" id="free-title">Free to use</h2>
+      <p class="section-intro">
+        Everything on this page is free and works without an account: the profitability dashboard,
+        menu engineering with the matrix, local saving in your browser and CSV import and export.
+      </p>
+
+      <div class="pro-card">
+        <h3 class="pro-title">Pro <span class="badge">Coming soon</span></h3>
+        <p>We are exploring an optional Pro version. Ideas under consideration:</p>
+        <ul class="pro-list">
+          <li>Cloud storage</li>
+          <li>Multiple restaurants</li>
+          <li>Advanced reports</li>
+          <li>Historical comparisons</li>
+          <li>Recipe costing</li>
+        </ul>
+        <p class="pro-note">These are possibilities, not commitments. There is no release date or pricing yet.</p>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -230,6 +280,12 @@
       <p class="footer-name">Restaurant Profit Analyzer</p>
       <p>Free browser-based menu profitability analysis. Your data stays in this browser; nothing is uploaded or synced.</p>
       <p>Calculations are estimates and are not financial or accounting advice.</p>
+      <nav class="footer-links" aria-label="Site">
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+      </nav>
     </div>
   </footer>
 
