@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Profit Analyzer | Menu Engineering Tool</title>
+  <meta name="description" content="Free browser-based tool to estimate revenue, product cost, gross profit and margin for each menu item, and classify items with menu engineering.">
+  <meta property="og:title" content="Restaurant Profit Analyzer | Menu Engineering Tool">
+  <meta property="og:description" content="Estimate revenue, product cost, gross profit and margin for each menu item, and see how your menu performs with menu engineering. Runs in your browser.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Restaurant Profit Analyzer</h1>
+      <p class="subtitle">
+        Estimate revenue, product cost, gross profit and margin for every item on your menu,
+        and see which items perform best with menu engineering.
+      </p>
+      <p class="header-meta">Free to use · Runs in your browser · No sign-up</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Dashboard: global metrics -->
+    <section class="dashboard-section" aria-label="Summary metrics">
+      <div class="dashboard">
+        <article class="metric-card">
+          <p class="metric-label">Total Revenue</p>
+          <p class="metric-value" id="total-revenue">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Total Product Cost</p>
+          <p class="metric-value" id="total-cost">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Gross Profit</p>
+          <p class="metric-value" id="total-profit">$0.00</p>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Overall Gross Margin</p>
+          <p class="metric-value" id="overall-margin">—</p>
+        </article>
+      </div>
+      <p class="dashboard-note">
+        Estimates based on the selling price, unit cost and units sold you enter.
+        Gross profit does not include labor, rent, taxes or other operating expenses.
+      </p>
+    </section>
+
+    <!-- Form: add or edit a product -->
+    <section class="panel">
+      <h2 class="panel-title" id="form-title">Add Product</h2>
+      <form id="product-form" novalidate>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="product-name">Product Name</label>
+            <input type="text" id="product-name" placeholder="e.g. Classic Burger" maxlength="60" autocomplete="off">
+          </div>
+          <div class="form-field">
+            <label for="selling-price">Selling Price ($)</label>
+            <input type="number" id="selling-price" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-describedby="selling-price-hint">
+            <p class="field-hint" id="selling-price-hint">Menu price of one item.</p>
+          </div>
+          <div class="form-field">
+            <label for="unit-cost">Unit Cost ($)</label>
+            <input type="number" id="unit-cost" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-describedby="unit-cost-hint">
+            <p class="field-hint" id="unit-cost-hint">Estimated direct cost to make one item.</p>
+          </div>
+          <div class="form-field">
+            <label for="units-sold">Units Sold</label>
+            <input type="number" id="units-sold" min="0" step="1" placeholder="0" inputmode="numeric" aria-describedby="units-sold-hint">
+            <p class="field-hint" id="units-sold-hint">Items sold in the period you analyze.</p>
+          </div>
+        </div>
+
+        <p class="form-error" id="form-error" role="alert"></p>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit-button">Add Product</button>
+          <button type="button" class="btn btn-secondary" id="cancel-edit-button" hidden>Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Products table -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Menu Products</h2>
+        <p class="save-status" id="save-status">Saved automatically in this browser only</p>
+      </div>
+
+      <!-- Data tools: CSV files are read and created only in this browser -->
+      <div class="data-toolbar">
+        <button type="button" class="btn btn-secondary btn-small" id="import-csv-button" aria-describedby="toolbar-hint">Import CSV</button>
+        <input type="file" id="csv-file-input" accept=".csv,text/csv" hidden>
+        <button type="button" class="btn btn-secondary btn-small" id="export-csv-button">Export CSV</button>
+        <button type="button" class="btn-link" id="download-template-button">Download CSV Template</button>
+        <button type="button" class="btn btn-secondary btn-small toolbar-end" id="reset-demo-button">Reset Demo Data</button>
+      </div>
+      <p class="toolbar-hint" id="toolbar-hint">
+        Importing shows a preview first. Your current products are only replaced after you confirm.
+      </p>
+
+      <section class="csv-preview" id="csv-preview" aria-label="CSV import preview" hidden></section>
+
+      <div class="storage-notice" id="storage-notice" role="status" hidden>
+        <p id="storage-notice-text"></p>
+        <button type="button" class="btn btn-secondary btn-small" id="dismiss-notice-button">Dismiss</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="products-table">
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col" class="numeric">Selling Price</th>
+              <th scope="col" class="numeric">Unit Cost</th>
+              <th scope="col" class="numeric">Units Sold</th>
+              <th scope="col" class="numeric">Revenue</th>
+              <th scope="col" class="numeric">Gross Profit</th>
+              <th scope="col" class="numeric">Gross Margin</th>
+              <th scope="col" class="actions-column">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-table-body"></tbody>
+        </table>
+      </div>
+      <p class="empty-message" id="empty-message" hidden>No products yet. Add a product above or import a CSV file.</p>
+    </section>
+
+    <!-- Menu Engineering: classifies products by contribution margin and popularity -->
+    <section class="panel">
+      <h2 class="panel-title">Menu Engineering</h2>
+      <p class="section-intro">
+        Each item is compared with the rest of your menu on two things: how much it contributes per sale
+        (contribution margin) and how often it sells (popularity). The result is a starting point for
+        analysis, not an automatic decision.
+      </p>
+
+      <div class="engineering-summary">
+        <div class="summary-item">
+          <span class="summary-label">Average Contribution Margin</span>
+          <span class="summary-value" id="average-contribution-margin">—</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Popularity Threshold</span>
+          <span class="summary-value" id="popularity-threshold">—</span>
+        </div>
+      </div>
+
+      <p class="engineering-notice" id="engineering-notice" hidden></p>
+
+      <!-- Matrix: drawn by js/matrix.js from the same classification results -->
+      <div class="matrix-block" id="matrix-block">
+        <h3 class="matrix-title">Menu Engineering Matrix</h3>
+        <p class="matrix-caption">
+          Dashed lines mark the Popularity Threshold and the Average Contribution Margin.
+          Hover, tap or focus a point for details.
+        </p>
+        <div class="matrix-chart" id="matrix-chart"></div>
+      </div>
+
+      <div class="category-grid" id="category-grid">
+        <article class="category-card category-star">
+          <h3 class="category-title">Star <span class="category-count"><span id="count-star">0</span><span class="visually-hidden"> items</span></span></h3>
+          <p class="category-description">Popular with high contribution. Typically your strongest menu performers.</p>
+          <ul class="category-list" id="list-star"></ul>
+        </article>
+        <article class="category-card category-plowhorse">
+          <h3 class="category-title">Plowhorse <span class="category-count"><span id="count-plowhorse">0</span><span class="visually-hidden"> items</span></span></h3>
+          <p class="category-description">Popular with lower contribution. Customers like them, but each sale contributes less.</p>
+          <ul class="category-list" id="list-plowhorse"></ul>
+        </article>
+        <article class="category-card category-puzzle">
+          <h3 class="category-title">Puzzle <span class="category-count"><span id="count-puzzle">0</span><span class="visually-hidden"> items</span></span></h3>
+          <p class="category-description">Less popular with high contribution. Potentially profitable items that may need more visibility or a closer look.</p>
+          <ul class="category-list" id="list-puzzle"></ul>
+        </article>
+        <article class="category-card category-dog">
+          <h3 class="category-title">Dog <span class="category-count"><span id="count-dog">0</span><span class="visually-hidden"> items</span></span></h3>
+          <p class="category-description">Less popular with lower contribution. Worth reviewing, but not automatically removing.</p>
+          <ul class="category-list" id="list-dog"></ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- How it works: formulas and assumptions -->
+    <section class="panel" aria-labelledby="how-it-works-title">
+      <h2 class="panel-title" id="how-it-works-title">How calculations work</h2>
+
+      <div class="formula-groups">
+        <div class="formula-group">
+          <h3 class="formula-group-title">Profitability</h3>
+          <dl class="formula-list">
+            <div><dt>Revenue</dt><dd>Selling Price × Units Sold</dd></div>
+            <div><dt>Product Cost</dt><dd>Unit Cost × Units Sold</dd></div>
+            <div><dt>Gross Profit</dt><dd>Revenue − Product Cost</dd></div>
+            <div><dt>Gross Margin</dt><dd>Gross Profit ÷ Revenue × 100</dd></div>
+          </dl>
+          <p class="formula-note">
+            Overall Gross Margin uses the totals of all products. Unit Cost is the estimated direct cost
+            of one item, so these figures do not include labor, rent, taxes or other operating expenses.
+          </p>
+        </div>
+
+        <div class="formula-group">
+          <h3 class="formula-group-title">Menu Engineering</h3>
+          <dl class="formula-list">
+            <div><dt>Contribution Margin per Unit</dt><dd>Selling Price − Unit Cost</dd></div>
+            <div><dt>Average Contribution Margin</dt><dd>Sum of contribution margins ÷ Number of products</dd></div>
+            <div><dt>Popularity</dt><dd>Product Units Sold ÷ Total Units Sold × 100</dd></div>
+            <div><dt>Expected Popularity</dt><dd>100% ÷ Number of products</dd></div>
+            <div><dt>Popularity Threshold</dt><dd>Expected Popularity × 70%</dd></div>
+          </dl>
+          <p class="formula-note">
+            An item has high contribution when its contribution margin is at or above the average, and high
+            popularity when its popularity is at or above the threshold. Items are classified once at least
+            one product has units sold.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-name">Restaurant Profit Analyzer</p>
+      <p>Free browser-based menu profitability analysis. Your data stays in this browser; nothing is uploaded or synced.</p>
+      <p>Calculations are estimates and are not financial or accounting advice.</p>
+    </div>
+  </footer>
+
+  <script src="js/storage.js"></script>
+  <script src="js/csv.js"></script>
+  <script src="js/matrix.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/csv-ui.js"></script>
+</body>
+</html>
